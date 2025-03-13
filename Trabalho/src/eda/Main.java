@@ -1,15 +1,14 @@
 package eda;
 
-
 import java.util.ArrayList;
 import java.io.*;
 import java.util.*;
 
 public class Main {
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         // Criação da tabela de hash com tamanho inicial de 300
-        HashTable hashTable = new HashTable(300); 
-        String arquivo = "random_numbers.txt"; // Caminho do arquivo
+        HashTable hashTable = new HashTable(1000); 
+        String arquivo = "random_numbers3.txt"; // Caminho do arquivo
         
         try {
             // Leitura do arquivo linha por linha
@@ -56,8 +55,8 @@ class HashTable {
 
     // Construtor da tabela hash
     public HashTable(int tamanhoInicial) {
-        this.tamanho = tamanhoInicial;
-        this.table = new ArrayList[tamanho];
+    	this.tamanho = DivisionMethod.nextPrime(tamanhoInicial);
+    	this.table = new ArrayList[this.tamanho];
         this.count = 0;
         this.numeroDeColisoes = 0; // Inicializa o contador de colisões
 
@@ -67,25 +66,32 @@ class HashTable {
         }
     }
 
-    // Função para adicionar uma chave na tabela hash
-    public void add(int chave) {
-        int indice = DivisionMethod.hashFunction(chave, tamanho); // Usando o método de divisão
+    // Função para verificar se o índice está vazio
+    public boolean isIndexEmpty(int hash) {
+        return table[hash].isEmpty();  // Retorna verdadeiro se a lista estiver vazia, caso contrário, falso
+    }
 
-        // Verifica se o índice já contém uma lista e se a chave já não está lá
-        if (!table[indice].contains(chave)) {
-            if (!table[indice].isEmpty()) { // Se já houver uma chave no índice, houve uma colisão
-                numeroDeColisoes++; // Incrementa o contador de colisões
-            }
-            table[indice].add(chave);
-            count++;
-            System.out.println("Chave " + chave + " adicionada no índice " + indice);
+    // Função para adicionar uma chave na tabela hash
+    public void add(int key) {
+        // Usando o método de divisão (DivisionMethod) para o cálculo do índice de hash
+        int hash = DivisionMethod.hashFunction(key, tamanho); 
+        
+        // Verifica se o índice está vazio
+        if (isIndexEmpty(hash)) {
+            System.out.println("Chave " + key + " será adicionada no hash " + hash);
+            table[hash].add(key);  // Adiciona a chave
+            count++;  // Incrementa o contador de elementos
         } else {
-            System.out.println("Chave " + chave + " já existe no índice " + indice);
+            // Se já houver algo na lista, significa que houve uma colisão
+            table[hash].add(key);
+            count++; 
+            numeroDeColisoes++;  // Incrementa o contador de colisões
+            System.out.println("Chave " + key + " será adicionada no hash " + hash + ". Colisão detectada!");
         }
 
-        // Se a tabela estiver mais de 75% cheia, realiza o redimensionamento
-        if (count > tamanho * 0.75) {
-            resize();
+        // Se a tabela estiver mais de 85% cheia, realiza o redimensionamento
+        if (count > tamanho * 0.85) {
+            resize(); // Redimensiona a tabela se necessário
         }
     }
 
@@ -94,7 +100,9 @@ class HashTable {
         System.out.println("Redimensionando a tabela...");
 
         // Dobra o tamanho da tabela
-        int novoTamanho = tamanho * 2;
+        int novoTamanho = DivisionMethod.nextPrime(tamanho * 2);
+
+        // Cria uma nova tabela de hash com o novo tamanho
         List<Integer>[] novaTabela = new ArrayList[novoTamanho];
 
         // Inicializa as novas listas
@@ -102,19 +110,18 @@ class HashTable {
             novaTabela[i] = new ArrayList<>();
         }
 
-        // Reinsere os elementos na nova tabela
+        // Reinsere os elementos na nova tabela com o novo tamanho
         for (int i = 0; i < tamanho; i++) {
-            for (int chave : table[i]) {
-                int indiceNovo = DivisionMethod.hashFunction(chave, novoTamanho); // Usando o método de divisão
-                novaTabela[indiceNovo].add(chave);
+            for (int key : table[i]) {
+                // Calculando o índice com o novo tamanho da tabela
+                int hashNovo = DivisionMethod.hashFunction(key, novoTamanho);  
+                novaTabela[hashNovo].add(key); // Adiciona o valor na nova tabela
             }
         }
 
         // Substitui a tabela antiga pela nova
         this.table = novaTabela;
-        this.tamanho = novoTamanho;
-
-        System.out.println("Tabela redimensionada para tamanho " + novoTamanho);
+        this.tamanho = novoTamanho; // Atualiza o tamanho da tabela
     }
 
     // Função para obter o número total de colisões
