@@ -33,3 +33,4 @@ public class DivisionMethod {
             System.out.println("Índice " + i + ": " + table[i]);
         }
     }}
+//mudança
