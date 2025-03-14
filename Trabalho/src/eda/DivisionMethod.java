@@ -24,7 +24,7 @@ public class DivisionMethod implements TabelaHashProjeto {
         }
     }
     
-    @Override
+
     public int hash(Integer chave) {
         return chave % capacidade;
     }
@@ -46,7 +46,7 @@ public class DivisionMethod implements TabelaHashProjeto {
         return numero;
     }
 
-    @Override
+
     public void add(Integer chave) {
         int index = hash(chave);
         if (tabela.get(index) == null) {
@@ -64,7 +64,7 @@ public class DivisionMethod implements TabelaHashProjeto {
         }
     }
 
-    @Override
+
     public Integer remove(Integer chave) {
         int index = hash(chave);
         LinkedList<Integer> lista = tabela.get(index);
@@ -75,7 +75,7 @@ public class DivisionMethod implements TabelaHashProjeto {
         return null;
     }
 
-    @Override
+
     public void resize() {
         int novoSize = getProximoPrimo(capacidade * 2);
         List<LinkedList<Integer>> novaTabela = new LinkedList<>();
@@ -93,13 +93,13 @@ public class DivisionMethod implements TabelaHashProjeto {
         this.capacidade = novoSize;
     }
 
-    @Override
+
     public boolean contains(Integer chave) {
         int index = hash(chave);
         return tabela.get(index).contains(chave);
     }
 
-    @Override
+ 
     public int size() {
         int contador = 0;
         for (LinkedList<Integer> lista : tabela) {
