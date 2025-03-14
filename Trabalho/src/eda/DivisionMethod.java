@@ -1,36 +1,114 @@
 package eda;
 
-public class DivisionMethod {
-	public static boolean isPrime(int num) {
-        if (num <= 1) {
-            return false; // Números menores ou iguais a 1 não são primos
+import java.util.LinkedList;
+import java.util.List;
+
+public class DivisionMethod implements TabelaHashProjeto {
+    private List<LinkedList<Integer>> tabela;
+    private int capacidade;
+    private int quantidade;
+    private static final int CAPACIDADE_DEFAULT = 100;
+    private int colisoes;
+
+    public DivisionMethod() {
+        this(CAPACIDADE_DEFAULT);
+    }
+    
+    public DivisionMethod(int capacidade) {
+        this.capacidade = capacidade;
+        this.tabela = new LinkedList<>();
+        this.colisoes = 0;
+        this.quantidade = 0;
+        for (int i = 0; i < capacidade; i++) {
+            tabela.add(new LinkedList<>());
         }
-        for (int i = 2; i * i <= num; i++) { // Verifica até a raiz quadrada de 'num'
-            if (num % i == 0) {
-                return false; // Se for divisível, não é primo
+    }
+    
+    @Override
+    public int hash(Integer chave) {
+        return chave % capacidade;
+    }
+
+    public static boolean numeroEPrimo(int numero) {
+        if (numero <= 1) return false;
+        if (numero == 2 || numero == 3) return true;
+        if (numero % 2 == 0) return false;
+        for (int i = 3; i * i <= numero; i += 2) {
+            if (numero % i == 0) return false;
+        }
+        return true;
+    }
+
+    public static int getProximoPrimo(int numero) {
+        while (!numeroEPrimo(numero)) {
+            numero++;
+        }
+        return numero;
+    }
+
+    @Override
+    public void add(Integer chave) {
+        int index = hash(chave);
+        if (tabela.get(index) == null) {
+            tabela.set(index, new LinkedList<>());  
+        }
+        LinkedList<Integer> listas = tabela.get(index);
+        if (!listas.contains(chave)) {
+            listas.add(chave);  
+        } else {
+            listas.add(chave);  
+            colisoes++; 
+        }        
+        if (quantidade > capacidade * 0.85) {
+            resize();
+        }
+    }
+
+    @Override
+    public Integer remove(Integer chave) {
+        int index = hash(chave);
+        LinkedList<Integer> lista = tabela.get(index);
+        if (lista != null && lista.contains(chave)) {
+            lista.remove(chave);
+            return chave;
+        }
+        return null;
+    }
+
+    @Override
+    public void resize() {
+        int novoSize = getProximoPrimo(capacidade * 2);
+        List<LinkedList<Integer>> novaTabela = new LinkedList<>();
+        for (int i = 0; i < novoSize; i++) {
+            novaTabela.add(new LinkedList<>());
+        }
+        for (int i = 0; i < capacidade; i++) {
+            LinkedList<Integer> lista = tabela.get(i);
+            for (Integer chave : lista) {
+                int novoI = chave % novoSize;
+                novaTabela.get(novoI).add(chave);
             }
         }
-        return true; // Se não encontrar divisores, é primo
+        this.tabela = novaTabela;
+        this.capacidade = novoSize;
     }
 
-    // Função para encontrar o próximo número primo maior ou igual a 'm'
-    public static int nextPrime(int m) {
-        while (!isPrime(m)) { // Continua até encontrar um número primo
-            m++;
+    @Override
+    public boolean contains(Integer chave) {
+        int index = hash(chave);
+        return tabela.get(index).contains(chave);
+    }
+
+    @Override
+    public int size() {
+        int contador = 0;
+        for (LinkedList<Integer> lista : tabela) {
+        	contador += lista.size();
         }
-        return m; // Retorna o próximo número primo
+        return contador;
     }
 
-    // Função hash utilizando o método de divisão
-    public static int divisionHash(int key, int m) {
-        return key % m; // Retorna o índice (hash) calculado pelo módulo
+    public int getColisoes() {
+        return colisoes;
     }
-
-    // Função para exibir os resultados de inserção na tabela de hash
-    public static void printHashTable(int[] table, int m) {
-        System.out.println("\nTabela de Hash:");
-        for (int i = 0; i < m; i++) {
-            System.out.println("Índice " + i + ": " + table[i]);
-        }
-    }}
-//mudança
+}
