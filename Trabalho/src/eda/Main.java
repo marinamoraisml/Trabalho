@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class Main{
 public static void main(String[] args) {
-    int capacidadeInicial = DivisionMethod.getProximoPrimo(1000);
+    int capacidadeInicial = DivisionMethod.getProximoPrimo(3000);
     DivisionMethod hashTable = new DivisionMethod(capacidadeInicial);
     String arquivo = "random_numbers3.txt"; 
 
